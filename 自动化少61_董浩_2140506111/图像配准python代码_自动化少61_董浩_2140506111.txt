@@ -1,0 +1,58 @@
+# 编程环境Python3.6.3、opencv-python3.4.2和numpy1.14.2
+
+import cv2
+import numpy as np
+
+img1 = cv2.imread('./Image A.jpg')
+img2 = cv2.imread('./Image B.jpg')
+img1_r = cv2.resize(img1, (512, 512), interpolation=cv2.INTER_CUBIC)
+img2_r = cv2.resize(img2, (512, 512), interpolation=cv2.INTER_CUBIC)
+ref = img1_r.copy()
+src = img2_r.copy()
+
+points1 = []
+points2 = []
+
+def mouse1(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        cv2.circle(ref, (x, y), 2, (0, 0, 255), -1)
+        p = [x, y]
+        cv2.imshow('ref', ref)
+        points1.append(p)
+        print('ref:', p)
+
+def mouse2(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        cv2.circle(src, (x, y), 2, (0, 0, 255), -1)
+        p = [x, y]
+        cv2.imshow('src', src)
+        points2.append(p)
+        print('src:', p)
+
+cv2.namedWindow('ref')
+cv2.namedWindow('src')
+cv2.imshow('ref', ref)
+cv2.imshow('src', src)
+cv2.setMouseCallback('ref', mouse1)
+cv2.setMouseCallback('src', mouse2)
+cv2.waitKey(0)
+print('continue?')
+a = input('random:')
+
+pts1 = np.float32(points1).reshape(-1, 1, 2)
+pts2 = np.float32(points2).reshape(-1, 1, 2)
+
+homo, mask = cv2.findHomography(pts2, pts1, 0)
+print('homo:', homo)
+trans = cv2.warpPerspective(src, homo, ref.shape[0:2])
+
+cv2.imshow('trans', trans)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+
+
+
+
